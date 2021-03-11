@@ -1,0 +1,38 @@
+---
+# tasks file for create_response_check
+- name: Sending API request for querying {{ item }}
+  uri:
+    url: "{{ case_details_url }}/{{ item }}"
+    validate_certs: no
+    force_basic_auth: yes
+    body_format: raw
+    user: "{{ username }}"
+    password: "{{ password }}"
+    method: GET
+    headers:
+      user-agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36'
+      accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+      accept-encoding: 'gzip, deflate, br'
+      accept-language: 'ja,zh-CN;q=0.9,zh;q=0.8,ja-JP;q=0.7'
+      cache-control: 'max-age=0'
+  register: case_details_result
+  ignore_errors: yes
+
+- name: Loading 'create_date' for {{ item }}
+  set_fact:
+    create_date: "{{ case_details_result.json.createdDate }}"
+
+- name: Loading 'response_date' for {{ item }}
+  set_fact:
+    response_date: >-
+      {%- set tmplist = [] -%}
+      {%- for i in range(case_details_result['json']['comments']|length) -%}
+      {%-     set _ = tmplist.append(case_details_result['json']['comments'][i].createdDate) -%}
+      {%- endfor -%}
+      {{ tmplist | last }}
+
+- name: Generate data for {{ item }}
+  lineinfile:
+    path : "{{ output_path }}"
+    line : "{{ item }} {{ create_date }} {{ response_date }}"
+    create: true

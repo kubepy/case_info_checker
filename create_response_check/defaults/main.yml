@@ -1,0 +1,5 @@
+---
+# defaults file for create_response_check
+case_summary_url: "https://access.redhat.com/hydra/rest/cases"
+case_details_url: "https://access.redhat.com/hydra/rest/v1/cases"
+output_path: "/tmp/case.txt"

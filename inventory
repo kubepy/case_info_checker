@@ -1,0 +1,5 @@
+[all:vars]
+username=''
+password=''
+case=['02887900','02887901','02887902','02887903']
+output_path="/tmp/case.txt"
